@@ -71,6 +71,21 @@ function getGeoLocation(ip) {
 
 // API Routes
 
+// Root path - API info
+app.get('/', (req, res) => {
+    res.json({
+        service: 'Cloud Dept. Analytics API',
+        version: '1.0.0',
+        endpoints: {
+            health: '/api/health',
+            track: '/api/track',
+            stats: '/api/stats',
+            visitors: '/api/visitors'
+        },
+        status: 'online'
+    });
+});
+
 // Track endpoint - receives analytics data
 app.post('/api/track', (req, res) => {
     try {
