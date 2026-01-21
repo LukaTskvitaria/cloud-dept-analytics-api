@@ -110,10 +110,10 @@ app.post('/api/track', (req, res) => {
         if (!visitor) {
             db.prepare(`
                 INSERT INTO visitors (visitor_id, ip_address, user_agent, created_at, last_seen)
-                VALUES (?, ?, ?, datetime('now'), datetime('now'))
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             `).run(visitorId, ip, data.browser?.userAgent || '');
         } else {
-            db.prepare('UPDATE visitors SET last_seen = datetime("now") WHERE visitor_id = ?').run(visitorId);
+            db.prepare('UPDATE visitors SET last_seen = CURRENT_TIMESTAMP WHERE visitor_id = ?').run(visitorId);
         }
         
         // Ensure session exists (create if it doesn't exist)
