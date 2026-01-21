@@ -162,27 +162,33 @@ app.post('/api/track', (req, res) => {
         }
         
         // Update visitor details
-        const geo = getGeoLocation(ip);
-        const agent = useragent.parse(data.browser?.userAgent || '');
-        
-        db.prepare(`
-            INSERT OR REPLACE INTO visitor_details 
-            (visitor_id, country, country_code, city, region, browser, device_type, os, 
-             screen_width, screen_height, language, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-        `).run(
-            visitorId,
-            geo?.country || null,
-            geo?.country || null,
-            geo?.city || null,
-            geo?.region || null,
-            agent.family || null,
-            getDeviceType(data.browser?.userAgent || ''),
-            agent.os.family || null,
-            data.screen?.width || null,
-            data.screen?.height || null,
-            data.browser?.language || null
-        );
+        try {
+            const geo = getGeoLocation(ip);
+            const userAgentString = data.browser?.userAgent || '';
+            const agent = useragent.parse(userAgentString);
+            
+            db.prepare(`
+                INSERT OR REPLACE INTO visitor_details 
+                (visitor_id, country, country_code, city, region, browser, device_type, os, 
+                 screen_width, screen_height, language, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            `).run(
+                visitorId,
+                geo?.country || null,
+                geo?.country || null,
+                geo?.city || null,
+                geo?.region || null,
+                agent.family || null,
+                getDeviceType(userAgentString),
+                agent.os?.family || null,
+                data.screen?.width || null,
+                data.screen?.height || null,
+                data.browser?.language || null
+            );
+        } catch (err) {
+            // Log error but don't fail the request
+            console.error('Visitor details update error:', err);
+        }
         
         res.json({ success: true });
     } catch (error) {
