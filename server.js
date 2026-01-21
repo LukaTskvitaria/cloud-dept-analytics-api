@@ -137,7 +137,7 @@ app.post('/api/track', (req, res) => {
             try {
                 db.prepare(`
                     INSERT INTO sessions (visitor_id, session_id, started_at, referrer, referrer_domain)
-                    VALUES (?, ?, datetime('now'), ?, ?)
+                    VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)
                 `).run(
                     visitorId,
                     sessionId,
@@ -154,7 +154,7 @@ app.post('/api/track', (req, res) => {
         if (data.type === 'pageview') {
             db.prepare(`
                 INSERT INTO page_views (session_id, visitor_id, page_path, page_title, viewed_at)
-                VALUES (?, ?, ?, ?, datetime('now'))
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
             `).run(sessionId, visitorId, data.page?.path || '/', data.page?.title || '');
             
             // Update session page views count
