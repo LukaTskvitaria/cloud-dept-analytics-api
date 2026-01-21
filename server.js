@@ -20,7 +20,7 @@ const corsOptions = {
     origin: process.env.CORS_ORIGINS 
         ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
         : ['https://clouddept.io', 'https://www.clouddept.io'], // Default allowed origins
-    credentials: true,
+    credentials: false, // Set to false since we don't need cookies/auth
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 };
