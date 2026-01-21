@@ -19,7 +19,12 @@ const PORT = process.env.PORT || 3001;
 const corsOptions = {
     origin: process.env.CORS_ORIGINS 
         ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-        : ['https://clouddept.io', 'https://www.clouddept.io'], // Default allowed origins
+        : [
+            'https://clouddept.io', 
+            'https://www.clouddept.io',
+            'https://analytics.clouddept.io',
+            'http://localhost:3000'
+          ], // Default allowed origins
     credentials: false, // Set to false since we don't need cookies/auth
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
