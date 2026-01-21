@@ -187,7 +187,9 @@ app.post('/api/track', (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Tracking error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Error stack:', error.stack);
+        console.error('Request data:', JSON.stringify(req.body, null, 2));
+        res.status(500).json({ success: false, error: error.message, details: process.env.NODE_ENV === 'development' ? error.stack : undefined });
     }
 });
 
