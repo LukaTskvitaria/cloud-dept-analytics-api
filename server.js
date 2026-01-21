@@ -120,6 +120,20 @@ app.post('/api/track', (req, res) => {
         let session = db.prepare('SELECT * FROM sessions WHERE session_id = ?').get(sessionId);
         if (!session) {
             // Session doesn't exist, create it
+            let referrer = data.page?.referrer || null;
+            let referrerDomain = null;
+            
+            // Safely extract referrer domain
+            if (referrer && referrer.trim() !== '') {
+                try {
+                    const referrerUrl = new URL(referrer);
+                    referrerDomain = referrerUrl.hostname;
+                } catch (err) {
+                    // Invalid URL, keep referrerDomain as null
+                    console.error('Invalid referrer URL:', referrer);
+                }
+            }
+            
             try {
                 db.prepare(`
                     INSERT INTO sessions (visitor_id, session_id, started_at, referrer, referrer_domain)
@@ -127,11 +141,11 @@ app.post('/api/track', (req, res) => {
                 `).run(
                     visitorId,
                     sessionId,
-                    data.page?.referrer || null,
-                    data.page?.referrer ? new URL(data.page.referrer).hostname : null
+                    referrer,
+                    referrerDomain
                 );
             } catch (err) {
-                // If session creation fails, try to get existing session
+                // If session creation fails, log error but continue
                 console.error('Session creation error:', err);
             }
         }
