@@ -94,8 +94,16 @@ app.post('/api/track', (req, res) => {
         
         // Extract visitor info
         const visitorId = data.visitorId;
-        const sessionId = data.sessionId;
+        let sessionId = data.sessionId;
         const isNewSession = data.isNewSession || false;
+        
+        // Validate required fields
+        if (!visitorId) {
+            return res.status(400).json({ success: false, error: 'visitorId is required' });
+        }
+        if (!sessionId) {
+            return res.status(400).json({ success: false, error: 'sessionId is required' });
+        }
         
         // Get or create visitor
         let visitor = db.prepare('SELECT * FROM visitors WHERE visitor_id = ?').get(visitorId);
@@ -108,17 +116,24 @@ app.post('/api/track', (req, res) => {
             db.prepare('UPDATE visitors SET last_seen = datetime("now") WHERE visitor_id = ?').run(visitorId);
         }
         
-        // Create or update session
-        if (isNewSession) {
-            db.prepare(`
-                INSERT INTO sessions (visitor_id, session_id, started_at, referrer, referrer_domain)
-                VALUES (?, ?, datetime('now'), ?, ?)
-            `).run(
-                visitorId,
-                sessionId,
-                data.page?.referrer || null,
-                data.page?.referrer ? new URL(data.page.referrer).hostname : null
-            );
+        // Ensure session exists (create if it doesn't exist)
+        let session = db.prepare('SELECT * FROM sessions WHERE session_id = ?').get(sessionId);
+        if (!session) {
+            // Session doesn't exist, create it
+            try {
+                db.prepare(`
+                    INSERT INTO sessions (visitor_id, session_id, started_at, referrer, referrer_domain)
+                    VALUES (?, ?, datetime('now'), ?, ?)
+                `).run(
+                    visitorId,
+                    sessionId,
+                    data.page?.referrer || null,
+                    data.page?.referrer ? new URL(data.page.referrer).hostname : null
+                );
+            } catch (err) {
+                // If session creation fails, try to get existing session
+                console.error('Session creation error:', err);
+            }
         }
         
         // Track page view
