@@ -171,7 +171,7 @@ app.post('/api/track', (req, res) => {
                 INSERT OR REPLACE INTO visitor_details 
                 (visitor_id, country, country_code, city, region, browser, device_type, os, 
                  screen_width, screen_height, language, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
             `).run(
                 visitorId,
                 geo?.country || null,
