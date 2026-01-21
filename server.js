@@ -18,9 +18,11 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 const corsOptions = {
     origin: process.env.CORS_ORIGINS 
-        ? process.env.CORS_ORIGINS.split(',')
-        : '*', // Allow all in development
-    credentials: true
+        ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+        : ['https://clouddept.io', 'https://www.clouddept.io'], // Default allowed origins
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use(cors(corsOptions));
 app.use(express.json());
